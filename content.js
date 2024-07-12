@@ -29,9 +29,17 @@ async function createPdf(job) {
 
   // top bar
   const jobNumber = form.getTextField('Job')
-  jobNumber.setText(job.number.slice(-4));
+  jobNumber.setText(job.number);
   const jobName = form.getTextField('Name')
-  jobName.setText(job.name);
+  jobName.setText(job.insured.lastName);
+  const jobReceived = form.getTextField('Received')
+  jobReceived.setText(job.createdDate);
+  const jobCarrier = form.getTextField('Carrier')
+  jobCarrier.setText(job.carrier);
+
+  // carrier/adjuster info box
+  const carrierName = form.getTextField('Name_2')
+  carrierName.setText(job.carrier);
 
   // insured box
   const insuredName = form.getTextField('Name_3')
@@ -46,6 +54,19 @@ async function createPdf(job) {
   insuredMobilePhoneNumber.setText(job.insured.mobilePhone);
   const insuredEmail = form.getTextField('Email_2')
   insuredEmail.setText(job.insured.email);
+
+  if (job.lossType.includes("Smoke") || job.lossType.includes("Soot")) {
+    form.getCheckBox('Check Box12').check();
+  }
+  if (job.lossType.includes("Puff Back")) {
+    form.getCheckBox('Check Box13').check();
+  }
+  if (job.lossType.includes("Water") || job.lossType.includes("Sewer")) {
+    form.getCheckBox('Check Box15').check();
+  }
+  if (job.lossType.includes("Lightning") || job.lossType.includes("Surge")) {
+    form.getCheckBox('Check Box14').check();
+  }
   
 
   // create and load pdf url
@@ -104,8 +125,10 @@ function getSelectOptionValue(elementID) {
 
 class Job {
   constructor() {
-    this.number = getRawValue('ContentPlaceHolder1_frmJob_vlblDisplayJobNumber');
-    this.name = getInputValue('ContentPlaceHolder1_frmJob_txtJobLNameInsured');
+    this.fullNumber = getRawValue('ContentPlaceHolder1_frmJob_vlblDisplayJobNumber');
+    this.number = getRawValue('ContentPlaceHolder1_frmJob_vlblDisplayJobNumber').slice(-4);
+    this.carrier = getInputValue('ContentPlaceHolder1_frmJob_txtJobLNameInsured').split(" / ")[1];
+    this.createdDate = extractDate(getRawValue('ContentPlaceHolder1_frmJob_lblCreated'));
     this.lossType = getSelectOptionValue('ContentPlaceHolder1_frmJob_ddlLossTypeID');
     this.lossCategory = getSelectOptionValue('ContentPlaceHolder1_frmJob_ddlCategoryTypeID');
     this.insured = new Insured();
@@ -152,4 +175,19 @@ function getStateAbbreviation(statename) {
     default:
       return ""
   }
+}
+
+function extractDate(inputString) {
+    // Regular expression to match the date and time part
+    const dateTimeRegex = /Created:\s(\d{1,2}\/\d{1,2})\/(\d{4})\s\d{1,2}:\d{2}:\d{2}\s(?:AM|PM)/;
+
+    // Extract the date part
+    const match = inputString.match(dateTimeRegex);
+    if (match) {
+        const datePart = match[1];
+        const yearPart = match[2].slice(-2); // Get the last two digits of the year
+        return `${datePart}/${yearPart}`;
+    } else {
+        return null; // Return null if the input doesn't match the expected format
+    }
 }
