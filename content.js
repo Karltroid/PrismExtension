@@ -13,7 +13,7 @@ window.addEventListener('load', function() {
 
     // Add an event listener for button click
     button.addEventListener('click', function() {
-      getJobData();
+      createPdf(new Job());
     });
   }
 });
@@ -35,11 +35,13 @@ async function createPdf(job) {
   const jobReceived = form.getTextField('Received')
   jobReceived.setText(job.createdDate);
   const jobCarrier = form.getTextField('Carrier')
-  jobCarrier.setText(job.carrier);
+  jobCarrier.setText(job.carrier.name);
 
   // carrier/adjuster info box
   const carrierName = form.getTextField('Name_2')
-  carrierName.setText(job.carrier);
+  carrierName.setText(job.carrier.name);
+  const carrierClaimNumber = form.getTextField('Claim')
+  carrierClaimNumber.setText(job.carrier.claimNumber);
 
   // insured box
   const insuredName = form.getTextField('Name_3')
@@ -87,11 +89,6 @@ function base64toBlob(base64Data) {
   return new Blob([byteArray], { type: 'application/pdf' });
 }
 
-function getJobData() {
-  var job = new Job();
-  createPdf(job);
-}
-
 function getInputValue(elementID) {
   var inputElement = document.getElementById(elementID);
 
@@ -127,11 +124,18 @@ class Job {
   constructor() {
     this.fullNumber = getRawValue('ContentPlaceHolder1_frmJob_vlblDisplayJobNumber');
     this.number = getRawValue('ContentPlaceHolder1_frmJob_vlblDisplayJobNumber').slice(-4);
-    this.carrier = getInputValue('ContentPlaceHolder1_frmJob_txtJobLNameInsured').split(" / ")[1];
     this.createdDate = extractDate(getRawValue('ContentPlaceHolder1_frmJob_lblCreated'));
     this.lossType = getSelectOptionValue('ContentPlaceHolder1_frmJob_ddlLossTypeID');
     this.lossCategory = getSelectOptionValue('ContentPlaceHolder1_frmJob_ddlCategoryTypeID');
+    this.carrier = new Carrier();
     this.insured = new Insured();
+  }
+}
+
+class Carrier {
+  constructor() {
+    this.name = getInputValue('ContentPlaceHolder1_frmJob_txtJobLNameInsured').split(" / ")[1];
+    this.claimNumber = getInputValue('ContentPlaceHolder1_frmJob_txtClaimNumber');
   }
 }
 
@@ -149,6 +153,9 @@ class Insured {
     this.homePhone = getInputValue('ContentPlaceHolder1_frmJob_txtJobNameInsuredPhoneHome');
     this.mobilePhone = getInputValue('ContentPlaceHolder1_frmJob_txtJobNameInsuredPhoneMobile');
     this.email = getInputValue('ContentPlaceHolder1_frmJob_txtJobNameInsuredEmail');
+    if (this.email == "unknown@ers.com") {
+      this.email = "";
+    }
   }
 }
 
@@ -173,7 +180,7 @@ function getStateAbbreviation(statename) {
     case "NEWJERSEY":
       return "NJ"
     default:
-      return ""
+      return statename;
   }
 }
 
@@ -188,6 +195,6 @@ function extractDate(inputString) {
         const yearPart = match[2].slice(-2); // Get the last two digits of the year
         return `${datePart}/${yearPart}`;
     } else {
-        return null; // Return null if the input doesn't match the expected format
+        return inputString; // Return the input back out if this failed
     }
 }
