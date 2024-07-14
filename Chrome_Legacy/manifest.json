@@ -1,10 +1,7 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Prism Extension",
   "description": "Expanded functionality for the track.ersintranet.com website!",
-  "author": {
-    "email": "karltroidcontact@gmail.com"
-  },
   "permissions": [
     "activeTab"
   ],
@@ -16,7 +13,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://tracking.ersintranet.com/ERS_Service_Tracker/Web/JobEdit.aspx?JobID=*"],
+      "matches": ["*://*.tracking.ersintranet.com/ERS_Service_Tracker/Web/JobEdit.aspx?JobID=*"],
       "js": ["pdf-lib.min.js", "content.js"],
       "css": ["style.css"]
     }

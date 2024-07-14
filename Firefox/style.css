@@ -1,0 +1,14 @@
+#myInjectedButton {
+  background-color: #0063B3;
+  outline: 2px solid black;
+  border-radius: 8px;
+  color: white;
+  border: none;
+
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+
+  margin: 0px 0px 0px 80px;
+  cursor: pointer;
+}

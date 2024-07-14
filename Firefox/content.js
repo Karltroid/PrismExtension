@@ -12,7 +12,8 @@ window.addEventListener('load', function() {
     targetElement.parentNode.insertBefore(button, targetElement.nextSibling);
 
     // Add an event listener for button click
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(event) {
+      event.preventDefault(); // Prevent the default form submission
       createPdf(new Job());
     });
   }
@@ -21,7 +22,21 @@ window.addEventListener('load', function() {
 async function createPdf(job) {
   // load job cover sheet pdf
   const formUrl = 'https://raw.githubusercontent.com/Karltroid/PrismExtension/main/PrismJobCoverSheet.pdf'
-  const formPdfBytes = await fetch(formUrl).then(res => res.arrayBuffer())
+  let formPdfBytes;
+  try {
+    const response = await fetch(formUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    formPdfBytes = await response.arrayBuffer();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+
+  if (!formPdfBytes) {
+    console.error('Failed to fetch the PDF bytes.');
+    return;
+  }
   const pdfDoc = await PDFLib.PDFDocument.load(formPdfBytes)
   const form = pdfDoc.getForm()
 

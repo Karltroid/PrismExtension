@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Prism Extension",
+  "description": "Expanded functionality for the track.ersintranet.com website!",
+  "permissions": [
+    "activeTab"
+  ],
+  "version": "1.0",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.tracking.ersintranet.com/ERS_Service_Tracker/Web/JobEdit.aspx?JobID=*"],
+      "js": ["pdf-lib.min.js", "content.js"],
+      "css": ["style.css"]
+    }
+  ]
+}
